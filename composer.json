@@ -1,0 +1,19 @@
+{
+  "name": "salibhdr/typhoon-rate",
+  "description": "A laravel package for rating models automatically",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Salar Bahador",
+      "email": "bahador.salar@gmail.com"
+    }
+  ],
+  "autoload": {
+  "psr-4": {
+    "SaliBhdr\\TyphoonRate\\": "src/"
+  }
+},
+  "require": {
+    "Illuminate/Support": "~5"
+  }
+}
