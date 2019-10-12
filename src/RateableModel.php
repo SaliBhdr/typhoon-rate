@@ -23,10 +23,13 @@ trait RateableModel
 
     /**
      * @param $user_id
+     * @return RateableModel
      */
-    protected function setUserId($user_id)
+    protected function setRateUserId($user_id)
     {
         $this->user_id = $user_id;
+
+        return $this;
     }
 
     /**
@@ -36,7 +39,7 @@ trait RateableModel
      *
      * @return int|null
      */
-    protected function getUserId()
+    protected function getRateUserId()
     {
         return $this->user_id ?? Auth::id();
     }
@@ -54,13 +57,12 @@ trait RateableModel
     /**
      * get percentage of ratings
      *
-     * @param int $maxRatePoint
      * @return float|int
      */
-    public function ratingPercent($maxRatePoint = null)
+    public function ratingPercent()
     {
-        $maxRatePoint = $maxRatePoint ?? $this->maxRatePoint();
-        $quantity     = $this->ratingCount();
+        $maxRatePoint = $this->maxRatePoint();
+        $quantity     = $this->totalVotes();
         $total        = $this->sumRating();
 
         return ($quantity * $maxRatePoint) > 0
@@ -73,9 +75,11 @@ trait RateableModel
      *
      * @return integer
      */
-    public function ratingCount()
+    public function totalVotes()
     {
-        return $this->ratings()->count();
+        return $this->ratings()
+            ->where('rate_type', 'star')
+            ->count();
     }
 
     /**
@@ -96,7 +100,7 @@ trait RateableModel
     public function sumRating()
     {
         $score = $this->ratings()
-            ->where('rate_type','star')
+            ->where('rate_type', 'star')
             ->sum('score');
 
         return is_null($score)
@@ -114,9 +118,9 @@ trait RateableModel
      */
     public function rate($score, $user_id = null)
     {
-        $rating          = new Rating();
-        $rating->score   = $score;
-        $rating->user_id = $user_id ?? $this->getUserId();
+        $rating            = new Rating();
+        $rating->score     = $score;
+        $rating->user_id   = $user_id ?? $this->getRateUserId();
         $rating->rate_type = 'star';
 
         $this->ratings()->save($rating->toArray());
@@ -135,7 +139,7 @@ trait RateableModel
     {
         $this->ratings()->updateOrCreate(
             [
-                'user_id' => $user_id ?? $this->getUserId(),
+                'user_id'   => $user_id ?? $this->getRateUserId(),
                 'rate_type' => 'star'
             ],
             [
@@ -152,7 +156,7 @@ trait RateableModel
     public function averageRating()
     {
         $score = $this->ratings()
-            ->where('rate_type','star')
+            ->where('rate_type', 'star')
             ->avg('score');
 
         return is_null($score)
@@ -163,13 +167,14 @@ trait RateableModel
     /**
      * average rating of specific user
      *
+     * @param null $user_id
      * @return float
      */
-    public function userAverageRating()
+    public function userAverageRating($user_id = null)
     {
         $score = $this->ratings()
-            ->where('rate_type','star')
-            ->where('user_id', $this->getUserId())
+            ->where('rate_type', 'star')
+            ->where('user_id', $user_id ?? $this->getRateUserId())
             ->avg('score');
 
         return is_null($score)
@@ -185,8 +190,8 @@ trait RateableModel
     public function userSumRating()
     {
         $score = $this->ratings()
-            ->where('rate_type','star')
-            ->where('user_id', $this->getUserId())
+            ->where('rate_type', 'star')
+            ->where('user_id', $this->getRateUserId())
             ->sum('score');
 
         return is_null($score)
@@ -242,7 +247,7 @@ trait RateableModel
      */
     public function getTotalVotesAttribute()
     {
-        return $this->ratingCount();
+        return $this->totalVotes();
     }
 
     /**
@@ -250,13 +255,24 @@ trait RateableModel
      *
      * @return array
      */
-    public function getRateStatsAttribute()
+    public function getRateStats()
     {
         return [
-            'score'       => $this->userAverageRating(),
-            'votes_count' => $this->getTotalVotesAttribute(),
-            'percentage'  => $this->ratingPercent(),
+            'avg_rating'      => $this->averageRating(),
+            'user_avg_rating' => $this->userAverageRating(),
+            'total_votes'     => $this->totalVotes(),
+            'percentage'      => $this->ratingPercent(),
+            'sum'             => $this->sumRating(),
         ];
+    }
+    /**
+     * get all statistics about user in an array(in attribute form)
+     *
+     * @return array
+     */
+    public function getRateStatsAttribute()
+    {
+        return $this->getRateStats();
     }
 
 }

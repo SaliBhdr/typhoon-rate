@@ -9,21 +9,25 @@ use SaliBhdr\TyphoonRate\Models\Rating;
 /**
  * @property int $total_liked
  * @property bool $is_liked
+ * @property bool $like_stats
  *
- * Trait LikeableModel
+ * Trait LikeableUnlikeableModel
  * @package SaliBhdr\TyphoonRate
  */
-trait LikeableModel
+trait LikeableUnlikeableModel
 {
 
     protected $user_id;
 
     /**
      * @param $user_id
+     * @return LikeableUnlikeableModel
      */
-    protected function setUserId($user_id)
+    protected function setLikedUserId($user_id)
     {
         $this->user_id = $user_id;
+
+        return $this;
     }
 
     /**
@@ -33,7 +37,7 @@ trait LikeableModel
      *
      * @return int|null
      */
-    protected function getUserId()
+    protected function getLikedUserId()
     {
         return $this->user_id ?? Auth::id();
     }
@@ -43,7 +47,7 @@ trait LikeableModel
      *
      * @return Rating | MorphMany
      */
-    public function ratings()
+    public function likings()
     {
         return $this->morphMany(Rating::class, 'rateable');
     }
@@ -58,9 +62,9 @@ trait LikeableModel
      */
     public function like($user_id = null)
     {
-        $this->ratings()->updateOrCreate(
+        $this->likings()->updateOrCreate(
             [
-                'user_id'   => $user_id ?? $this->getUserId(),
+                'user_id'   => $user_id ?? $this->getLikedUserId(),
                 'rate_type' => 'like',
             ],
             [
@@ -77,11 +81,32 @@ trait LikeableModel
      */
     public function unlike($user_id = null)
     {
-        $this->ratings()
-            ->where('user_id', $user_id ?? $this->getUserId())
+        $this->likings()
+            ->where('user_id', $user_id ?? $this->getLikedUserId())
             ->where('rate_type', 'like')
             ->where('score', 1.00)
             ->delete();
+    }
+
+
+    /**
+     * toggle like and unlike
+     *
+     * @param int|null $user_id
+     * @throws \Exception
+     */
+    public function toggleLike($user_id = null)
+    {
+        $likedRecord = $this->likings()
+            ->where('user_id', $user_id ?? $this->getLikedUserId())
+            ->where('rate_type', 'like')
+            ->where('score', 1.00)
+            ->first();
+
+        if (isset($likedRecord))
+            $this->unlike($user_id);
+        else
+            $this->like($user_id);
     }
 
     /**
@@ -92,8 +117,8 @@ trait LikeableModel
      */
     public function isLiked($user_id = null)
     {
-        return $this->ratings()
-            ->where('user_id', $user_id ?? $this->getUserId())
+        return $this->likings()
+            ->where('user_id', $user_id ?? $this->getLikedUserId())
             ->where('rate_type', 'like')
             ->where('score', 1.00)
             ->exists();
@@ -106,7 +131,7 @@ trait LikeableModel
      */
     public function totalLiked()
     {
-        return $this->ratings()
+        return $this->likings()
             ->where('rate_type', 'like')
             ->where('score', 1.00)
             ->count();
@@ -137,12 +162,23 @@ trait LikeableModel
      *
      * @return array
      */
-    public function getRateStatsAttribute()
+    public function getLikeStats()
     {
         return [
-            'liked_count'   => $this->totalLiked(),
-            'is_liked' => $this->isLiked(),
+            'total_likes' => $this->totalLiked(),
+            'is_liked'    => $this->isLiked(),
         ];
+    }
+
+    /**
+     *
+     * get all statistics about user in an array
+     *
+     * @return array
+     */
+    public function getLikeStatsAttribute()
+    {
+        return $this->getLikeStats();
     }
 
 }
