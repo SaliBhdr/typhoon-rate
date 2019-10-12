@@ -2,10 +2,10 @@
 
 ![Salibhdr|typhoon](https://drive.google.com/a/domain.com/thumbnail?id=12yntFCiYIGJzI9FMUaF9cRtXKb0rXh9X)
 
-[![Total Downloads](https://poser.pugx.org/SaliBhdr/typhoon-rate/downloads)](https://packagist.org/packages/SaliBhdr/typhoon-rate)
-[![Latest Stable Version](https://poser.pugx.org/SaliBhdr/typhoon-rate/v/stable)](https://packagist.org/packages/SaliBhdr/typhoon-rate)
-[![Latest Unstable Version](https://poser.pugx.org/SaliBhdr/typhoon-rate/v/unstable)](https://packagist.org/packages/SaliBhdr/typhoon-rate)
-[![License](https://poser.pugx.org/SaliBhdr/typhoon-rate/license)](https://packagist.org/packages/SaliBhdr/typhoon-rate)
+[![Total Downloads](https://poser.pugx.org/SaliBhdr/typhoonrate/downloads)](https://packagist.org/packages/SaliBhdr/typhoonrate)
+[![Latest Stable Version](https://poser.pugx.org/SaliBhdr/typhoonrate/v/stable)](https://packagist.org/packages/SaliBhdr/typhoonrate)
+[![Latest Unstable Version](https://poser.pugx.org/SaliBhdr/typhoonrate/v/unstable)](https://packagist.org/packages/SaliBhdr/typhoonrate)
+[![License](https://poser.pugx.org/SaliBhdr/typhoonrate/license)](https://packagist.org/packages/SaliBhdr/typhoonrate)
 
 ## Introduction
 
@@ -22,7 +22,7 @@ Available rate methods in this package:
 
 #### Install with Composer
 ```php
- $ composer require salibhdr/typhoon-rate
+ $ composer require salibhdr/typhoonrate
 ```
 ## Getting started
 
