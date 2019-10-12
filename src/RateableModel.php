@@ -2,31 +2,76 @@
 
 namespace SaliBhdr\TyphoonRate;
 
-use SaliBhdr\TyphoonRate\Models\Rating;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
+use SaliBhdr\TyphoonRate\Models\Rating;
 
+/**
+ * @property int $average_rating
+ * @property int $sum_rating
+ * @property int $user_average_rating
+ * @property int $user_sum_rating
+ * @property int $total_votes
+ * @property array $rate_stats
+ *
+ * Trait RateableModel
+ * @package SaliBhdr\TyphoonRate
+ */
 trait RateableModel
 {
+    protected $user_id;
+
+    /**
+     * @param $user_id
+     */
+    protected function setUserId($user_id)
+    {
+        $this->user_id = $user_id;
+    }
+
+    /**
+     * returns user Id
+     *
+     * you can specify your logic by overriding this method
+     *
+     * @return int|null
+     */
+    protected function getUserId()
+    {
+        return $this->user_id ?? Auth::id();
+    }
+
+    /**
+     * number of stars that you set for model
+     *
+     * @return int
+     */
+    protected function maxRatePoint()
+    {
+        return 5;
+    }
+
     /**
      * get percentage of ratings
      *
-     * @param int $numberOfStars
+     * @param int $maxRatePoint
      * @return float|int
      */
-    public function ratingPercent($numberOfStars = 5)
+    public function ratingPercent($maxRatePoint = null)
     {
-        $quantity = $this->ratingCount();
-        $total = $this->sumRating();
+        $maxRatePoint = $maxRatePoint ?? $this->maxRatePoint();
+        $quantity     = $this->ratingCount();
+        $total        = $this->sumRating();
 
-        return ($quantity * $numberOfStars) > 0
-            ? ($total * 100) / ($quantity * $numberOfStars)
+        return ($quantity * $maxRatePoint) > 0
+            ? ($total * 100) / ($quantity * $maxRatePoint)
             : 0;
     }
 
     /**
      * total number of votes on specific subject
      *
-     * @return mixed
+     * @return integer
      */
     public function ratingCount()
     {
@@ -36,7 +81,7 @@ trait RateableModel
     /**
      * This model has many ratings.
      *
-     * @return Rating
+     * @return Rating | MorphMany
      */
     public function ratings()
     {
@@ -50,9 +95,13 @@ trait RateableModel
      */
     public function sumRating()
     {
-        $score = $this->ratings()->sum('score');
+        $score = $this->ratings()
+            ->where('rate_type','star')
+            ->sum('score');
 
-        return is_null($score) ? $score : (float) $score;
+        return is_null($score)
+            ? $score
+            : (float)$score;
     }
 
     /**
@@ -65,19 +114,16 @@ trait RateableModel
      */
     public function rate($score, $user_id = null)
     {
-        if (is_null($user_id)) {
-            $user_id = Auth::id();
-        }
+        $rating          = new Rating();
+        $rating->score   = $score;
+        $rating->user_id = $user_id ?? $this->getUserId();
+        $rating->rate_type = 'star';
 
-        $rating = new Rating();
-        $rating->score = $score;
-        $rating->user_id = $user_id;
-
-        $this->ratings()->save($rating);
+        $this->ratings()->save($rating->toArray());
     }
 
     /**
-     * rate an specific ratable subject
+     * rate an specific ratable subject once
      *
      * with this method user can only vote once for a rateable
      * any time the user tries to vote for that subject again the vote score would be updated
@@ -87,18 +133,65 @@ trait RateableModel
      */
     public function rateOnce($score, $user_id = null)
     {
-        if (is_null($user_id)) {
-            $user_id = Auth::id();
-        }
-
         $this->ratings()->updateOrCreate(
             [
-                'user_id' => $user_id,
+                'user_id' => $user_id ?? $this->getUserId(),
+                'rate_type' => 'star'
             ],
             [
                 'score' => $score
             ]
         );
+    }
+
+    /**
+     * average rating of a rateable
+     *
+     * @return float
+     */
+    public function averageRating()
+    {
+        $score = $this->ratings()
+            ->where('rate_type','star')
+            ->avg('score');
+
+        return is_null($score)
+            ? $score
+            : (float)$score;
+    }
+
+    /**
+     * average rating of specific user
+     *
+     * @return float
+     */
+    public function userAverageRating()
+    {
+        $score = $this->ratings()
+            ->where('rate_type','star')
+            ->where('user_id', $this->getUserId())
+            ->avg('score');
+
+        return is_null($score)
+            ? $score
+            : (float)$score;
+    }
+
+    /**
+     * sum of specific user votes on a specific rate subject
+     *
+     * @return float
+     */
+    public function userSumRating()
+    {
+        $score = $this->ratings()
+            ->where('rate_type','star')
+            ->where('user_id', $this->getUserId())
+            ->sum('score');
+
+        return is_null($score)
+            ? $score
+            : (float)$score;
     }
 
     /**
@@ -110,18 +203,6 @@ trait RateableModel
     public function getAverageRatingAttribute()
     {
         return $this->averageRating();
-    }
-
-    /**
-     * average rating of a rateable
-     *
-     * @return float
-     */
-    public function averageRating()
-    {
-        $score = $this->ratings()->avg('score');
-
-        return is_null($score) ? $score : (float) $score;
     }
 
     /**
@@ -145,18 +226,6 @@ trait RateableModel
     }
 
     /**
-     * average rating of specific user
-     *
-     * @return float
-     */
-    public function userAverageRating()
-    {
-        $score = $this->ratings()->where('user_id', Auth::id())->avg('score');
-
-        return is_null($score) ? $score : (float) $score;
-    }
-
-    /**
      * sum of specific user votes on a specific rate subject (in attribute form)
      *
      * @return float
@@ -164,18 +233,6 @@ trait RateableModel
     public function getUserSumRatingAttribute()
     {
         return $this->userSumRating();
-    }
-
-    /**
-     * sum of specific user votes on a specific rate subject
-     *
-     * @return float
-     */
-    public function userSumRating()
-    {
-        $score = $this->ratings()->where('user_id', Auth::id())->sum('score');
-
-        return is_null($score) ? $score : (float) $score;
     }
 
     /**
@@ -187,4 +244,19 @@ trait RateableModel
     {
         return $this->ratingCount();
     }
+
+    /**
+     * get all statistics about user in an array
+     *
+     * @return array
+     */
+    public function getRateStatsAttribute()
+    {
+        return [
+            'score'       => $this->userAverageRating(),
+            'votes_count' => $this->getTotalVotesAttribute(),
+            'percentage'  => $this->ratingPercent(),
+        ];
+    }
+
 }

@@ -13,6 +13,7 @@ class CreateRatingsTable extends Migration
     {
         Schema::create('ratings', function (Blueprint $table) {
             $table->increments('id');
+            $table->enum('rate_type',['like','star'])->default('star~');
             $table->morphs('rateable');
             $table->unsignedInteger('user_id')->nullable()->index();
             $table->decimal('score');
