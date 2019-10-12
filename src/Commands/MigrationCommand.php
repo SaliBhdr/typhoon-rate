@@ -10,7 +10,7 @@ class MigrationCommand extends Command
      *
      * @var string
      */
-    protected $name = 'tyRateable:migration';
+    protected $name = 'rateable:migration';
 
     /**
      * The console command description.
@@ -33,25 +33,25 @@ class MigrationCommand extends Command
     public function handle()
     {
         $this->info('Tables: ratings');
-        $this->line('');
+        $this->line("");
         $this->comment('A migration that creates a "ratings" table will be created in the `database/migrations` directory');
-        $this->line('');
+        $this->line("");
 
         if ($this->confirm("Proceed with the migration creation?")) {
-            $this->line('');
+            $this->line("");
             $this->info("Creating migration...");
-            $this->line('');
+            $this->line("");
 
             if ($this->createMigration()) {
                 $this->info("Migration successfully created!");
             } else {
                 $this->error(
-                    "Coudn't create migration.\n Check the write permissions".
+                    "Couldn't create migration.\n Check the write permissions".
                     " within the `database/migrations` directory."
                 );
             }
 
-            $this->line('');
+            $this->line("");
         }
     }
 
