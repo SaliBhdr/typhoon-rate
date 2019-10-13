@@ -259,7 +259,7 @@ dd($record->rate_stats);
         ];
 ```
 
-### 1) Like and unlike System :
+### 2) Like and unlike System :
 
 ----
 
@@ -432,7 +432,7 @@ dd($record->like_stats);
 ```
 
 
-### 1) Like and dislike System :
+### 3) Like and dislike System :
 
 ----
 
@@ -577,7 +577,11 @@ both unlike and dislike method together it will throw an error.
  - Add More methods
  - add charts 
  - like and dislike percentage
- 
+
+Issues
+----
+You can report issues in github repository [here][lk1] 
+
 License
 ----
 Typhoon-Rate is released under the MIT License.
@@ -589,3 +593,9 @@ Built with ❤ for you.
 Contributing
 ----
 Contributions, useful comments, and feedback are most welcome!
+
+
+[//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
+
+
+   [lk1]: <https://github.com/SaliBhdr/typhoon-rate/issues>
