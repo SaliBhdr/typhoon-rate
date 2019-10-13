@@ -1,6 +1,6 @@
 {
   "name": "salibhdr/typhoon-rate",
-  "description": "A laravel package for rating models automatically",
+  "description": "A model base laravel package for rate, add stars and like records. ",
   "license": "MIT",
   "authors": [
     {
