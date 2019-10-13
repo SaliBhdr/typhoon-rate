@@ -267,7 +267,6 @@ Typhoon rate uses `SaliBhdr\TyphoonRate\LikeableUnlikeableModel` trait to like a
 
 like and unlike system only tracks likes and dislikes does'nt work with this trait.
 
-
 first use this trait in your model :
 
 ```php
@@ -348,7 +347,7 @@ $record->unlike($user_id);
 $record->setLikeUserId($user_id)->like();
 $record->setLikeUserId($user_id)->unlike();
 
-
+```
 
 You can toggle like with toggleLike() method , this method will automatically like and unlike subject:
 
@@ -490,6 +489,7 @@ You can even specify the method that specifies the user id for rating purposes b
 
 
 like and toggle like are the same as above but instead of unlike you must user dislike
+
 ```php
 
 $record = Book::find($record_id);
