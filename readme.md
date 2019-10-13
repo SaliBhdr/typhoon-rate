@@ -21,12 +21,12 @@ Available rate methods in this package:
 ## Installation
 
 #### Install with Composer
-```php
+```sh
  $ composer require salibhdr/typhoon-rate
 ```
 ## Getting started
 
-After installing the Typhoon Rate library, register the SaliBhdr\TyphoonCache\ServiceProviders\TyphoonRateableServiceProvider::class in your config/app.php configuration file:
+After installing the Typhoon Rate library, register the SaliBhdr\TyphoonRate\ServiceProviders\TyphoonRateableServiceProvider::class in your config/app.php configuration file:
 
 ##### Laravel
 
@@ -37,7 +37,7 @@ After installing the Typhoon Rate library, register the SaliBhdr\TyphoonCache\Se
 
      // Other service providers...
      
-     SaliBhdr\TyphoonCache\ServiceProviders\TyphoonCacheServiceProvider::class,
+     SaliBhdr\TyphoonRate\ServiceProviders\TyphoonRateableServiceProvider::class,
 ],
 ```
 
@@ -48,13 +48,13 @@ After installing the Typhoon Rate library, register the SaliBhdr\TyphoonCache\Se
 
 Register The Service Provider In bootstrap/app.php:
 ```php
-$app->register(SaliBhdr\TyphoonCache\ServiceProviders\TyphoonRateableServiceProvider::class);
+$app->register(SaliBhdr\TyphoonRate\ServiceProviders\TyphoonRateableServiceProvider::class);
 ```
 
 Copy the package migration with the publish command:
 
-```php
-php artisan vendor:publish --provider="SaliBhdr\TyphoonCache\ServiceProviders\TyphoonRateableServiceProvider"
+```sh
+php artisan vendor:publish --provider="SaliBhdr\TyphoonRate\ServiceProviders\TyphoonRateableServiceProvider"
 ```
 It will generate the `<timestamp>_create_ratings_table.php` migration. You may now run it with the artisan migrate command:
 
